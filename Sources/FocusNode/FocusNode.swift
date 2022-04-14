@@ -33,6 +33,8 @@ open class FocusNode: SCNNode {
 
 	var screenCenter: CGPoint?
 
+	public var focusPoint: CGPoint?
+
 	// MARK: - Properties
 
 	/// The most recent position of the focus square based on the current state.
@@ -364,7 +366,9 @@ open class FocusNode: SCNNode {
 		}
 		var result: ARHitTestResult?
 		if !Thread.isMainThread {
-			if let center = self.screenCenter {
+			if let point = self.focusPoint {
+				result = view.smartHitTest(point)
+			} else if let center = self.screenCenter {
 				result = view.smartHitTest(center)
 			} else {
 				DispatchQueue.main.async {
@@ -374,7 +378,11 @@ open class FocusNode: SCNNode {
 				return
 			}
 		} else {
-			result = view.smartHitTest(view.screenCenter)
+			if let point = self.focusPoint {
+				result = view.smartHitTest(point)
+			} else {
+				result = view.smartHitTest(view.screenCenter)
+			}
 		}
 
 		if let result = result {
